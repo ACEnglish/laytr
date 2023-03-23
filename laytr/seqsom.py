@@ -1,10 +1,13 @@
-
+"""
+Given regions and a reference, create a dataframe of the kmer featurization
+"""
 import re
 import multiprocessing
 from typing import List
 from functools import partial
 
 import pysam
+import joblib
 import truvari
 import numpy as np
 from numpy.typing import ArrayLike
@@ -66,18 +69,42 @@ def iter_regions(fn: str):
         yield chrom, start, end
 
 def regions_to_kmers(regions: List[tuple[str, int, int]], reference: str,
-                     k: int = 3, ordered: bool = False, nproc: int = 4):
+                     k: int = 3, nproc: int = 1):
     """
     Get kmer featurization for a set of regions over a reference
     """
     m_caller = partial(get_features, ref_fn=reference, k=k)
     with multiprocessing.Pool(nproc) as pool:
-        if ordered:
-            result = [_ for _ in pool.map(m_caller, regions)]
-        else:
-            result = [_ for _ in pool.imap_unordered(m_caller, regions)]
+        result = [_ for _ in pool.map(m_caller, regions)]
         pool.close()
         pool.join()
     feats = np.vstack([result])
     return feats
 
+def parse_args(args):
+    """
+    Argument parser
+    """
+    parser = argparse.ArgumentParser(prog="seqsom", description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("-r", "--regions", type=str, required=True,
+                        help="Bed file of regions to fecth")
+    parser.add_argument("-f", "--reference", type=str, required=True,
+                        help="Reference genome fasta")
+    parser.add_argument("-o", "--output", type="str", required=True,
+                        help="Output joblib file")
+    parser.add_argument("-k", "--kmer", type=int, default=3,
+                        help="Size of kmer (%(default)s)")
+    parser.add_argument("-t", "--threads", type=int, default=1,
+                        help="Number of threads to use (%(default)s)")
+    args = parser.parse_args(args)
+    return args
+
+def seqsom_main(args):
+    """
+    Main
+    """
+    args = parse_args(args)
+    m_reg = iter_regions(args.regions)
+    data = regions_to_kmers(m_reg, args.reference, k=args.kmer, nproc=args.threads)
+    joblib.dump(data, args.output)

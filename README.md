@@ -1,5 +1,4 @@
-Laytr - GIAB TR stratification toolkit
-
+Laytr - Library for variant benchmarking stratification
 
 There is no quick start. This is a library for helping bioinformaticians perform analysis. Please read the documentation
 and tutorials.
@@ -18,6 +17,16 @@ laytr -h
 - SeqSom - Self-organizing map based on kmer featurization of DNA.
 - TRsom - Self-organizing map based on Adotto TR region features
 - surbscore - Exploratory data analysis technique with permutation tests on chi2 scores with multiple test correction
+
+# Use cases -
+
+1. Given regions and a reference, build kmer feats
+2. Take those kmer feats and build a som
+3. Map regions to the SOM to build columns, Neuron.
+4. Describe how to put makers onto neurons to identify neighborhoods
+5. Describe umatrix for how to color the neurons
+6. Describe how to heatmap the umatrix e.g. average something mnother
+
 
 # Tutorial
 
