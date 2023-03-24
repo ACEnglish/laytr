@@ -9,7 +9,7 @@ VariantRecord methods:
 """
 __version__ = '0.0.1'
 
-from laytr.somutils import (
+from laytr.kfeat import (
     kfeat,
     kfeats,
     get_features,
@@ -20,3 +20,4 @@ from laytr.somutils import (
 from laytr.somplot import (
     plot_hex,
 )
+

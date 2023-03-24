@@ -100,7 +100,7 @@ def parse_args(args):
     args = parser.parse_args(args)
     return args
 
-def seqsom_main(args):
+def kfeat_main(args):
     """
     Main
     """
