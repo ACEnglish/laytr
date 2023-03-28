@@ -17,6 +17,10 @@ from laytr.kfeat import (
     regions_to_kmers,
 )
 
+from laytr.map import (
+    map_to_som
+)
+
 from laytr.somplot import (
     make_hex_plot,
     add_places,

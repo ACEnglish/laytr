@@ -1,5 +1,5 @@
 """
-Given a SOM (pkl) and a kfeat dataframe (joblib), pick the winning neuron. Reports an array saved with joblib
+Given a SOM and a DataFrame of features, pick the winning neuron and saved result with joblib
 """
 import pickle
 import joblib
@@ -14,14 +14,19 @@ def parse_args(args):
     parser = argparse.ArgumentParser(prog="map", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-i", "--input", type=str, required=True,
-                        help="Input dataframe (.jl)")
+                        help="Input dataframe")
     parser.add_argument("-s", "--som", type=str, required=True,
-                        help="Self-organizing map (.pkl)")
+                        help="Self-organizing map")
     parser.add_argument("-o", "--output", type=str, required=True,
                         help="Output joblib file")
     args = parser.parse_args(args)
     return args
 
+def map_to_som(feats, som):
+    """
+    Map features to som, return numpy array
+    """
+    return np.array([som.winner(_) for _ in feats])
 
 def map_main(args):
     """
@@ -30,5 +35,4 @@ def map_main(args):
     args = parse_args(args)
     feats = joblib.load(args.input)
     som = pickle.load(open(args.som, 'rb'))
-    neurons = np.array([som.winner(_) for _ in feats])
-    joblib.dump(neurons, args.output)
+    joblib.dump(map_to_som(feats, som), args.output)

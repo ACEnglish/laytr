@@ -20,6 +20,5 @@ laytr map --input chr22_kfeat.jl --som soms/adotto_TRv1.1_3mers.som --output chr
 Finally, you can visualize your SOM with `notebooks/SOMPlotExample.ipynb`.
 
 # ToDo
-- make notebooks/KmerSom.ipynb
 - make SurbScore (no cli)
 - 
