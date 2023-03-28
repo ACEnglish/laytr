@@ -18,6 +18,7 @@ from laytr.kfeat import (
 )
 
 from laytr.somplot import (
-    plot_hex,
+    make_hex_plot,
+    add_places,
 )
 

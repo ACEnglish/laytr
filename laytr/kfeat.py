@@ -1,7 +1,8 @@
 """
-Given regions and a reference, create a dataframe of the kmer featurization
+Given regions and a reference, create a numpy 2D array of the kmer featurization
 """
 import re
+import argparse
 import multiprocessing
 from typing import List
 from functools import partial
@@ -85,13 +86,13 @@ def parse_args(args):
     """
     Argument parser
     """
-    parser = argparse.ArgumentParser(prog="seqsom", description=__doc__,
+    parser = argparse.ArgumentParser(prog="kfeat", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-r", "--regions", type=str, required=True,
                         help="Bed file of regions to fecth")
     parser.add_argument("-f", "--reference", type=str, required=True,
                         help="Reference genome fasta")
-    parser.add_argument("-o", "--output", type="str", required=True,
+    parser.add_argument("-o", "--output", type=str, required=True,
                         help="Output joblib file")
     parser.add_argument("-k", "--kmer", type=int, default=3,
                         help="Size of kmer (%(default)s)")

@@ -10,7 +10,13 @@ The core functionality of laytr is the library. See wiki for description of jupy
 Additionally, some tools for creating data are available in the command line.
 ```bash
 laytr -h
+
+laytr kfeat regions reference kfeat.jl
+# make som > som.pkl
+laytr winner kfeat.jl som.pkl kfeat_winners.jl
 ```
+ 
+Then you can import laytr.plot_hex or laytr.heatmap or umatrix or what?
 
 # Modules
 

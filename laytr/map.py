@@ -1,5 +1,5 @@
 """
-Given a som (pkl?) and a kfeat dataframe (joblib), pick the winning neuron. Reports an array saved with joblib
+Given a SOM (pkl) and a kfeat dataframe (joblib), pick the winning neuron. Reports an array saved with joblib
 """
 import pickle
 import joblib
@@ -11,7 +11,7 @@ def parse_args(args):
     """
     Argument parser
     """
-    parser = argparse.ArgumentParser(prog="place", description=__doc__,
+    parser = argparse.ArgumentParser(prog="map", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-i", "--input", type=str, required=True,
                         help="Input dataframe (.jl)")
@@ -23,7 +23,7 @@ def parse_args(args):
     return args
 
 
-def place_main(args):
+def map_main(args):
     """
     Main
     """
