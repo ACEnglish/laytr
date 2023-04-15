@@ -10,7 +10,7 @@ from matplotlib.patches import RegularPolygon, Ellipse
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-def make_hex_plot(som, hue=None, hue_label="Distance", color_map=cm.Blues, hue_count_ticks=False):
+def make_hex_plot(som, hue=None, hue_label="Distance", color_map=cm.Blues, hue_count_ticks=False, color_norm=None):
     """
     Creates the hex plot for a som. Hue is a matrix of the same shape as the SOM.
     By default, hue will be a som.distance_map()
@@ -28,10 +28,13 @@ def make_hex_plot(som, hue=None, hue_label="Distance", color_map=cm.Blues, hue_c
     for i in range(hue.shape[0]):
         for j in range(hue.shape[1]):
             wy = yy[(i, j)] * np.sqrt(3) / 2
+            # Normalize for the color map if they're count ticks
+            m_hue_val = hue[i, j] if not hue_count_ticks else hue[i, j] / hue.max()
+            m_hue_val = color_norm(m_hue_val) if color_norm else m_hue_val
             hex = RegularPolygon((xx[(i, j)], wy),
                                  numVertices=6,
                                  radius=.95 / np.sqrt(3),
-                                 facecolor=color_map(hue[i, j]),
+                                 facecolor=color_map(m_hue_val),
                                  alpha=.4,
                                  edgecolor='gray')
             ax.add_patch(hex)
@@ -47,7 +50,7 @@ def make_hex_plot(som, hue=None, hue_label="Distance", color_map=cm.Blues, hue_c
 
     divider = make_axes_locatable(plt.gca())
     ax_cb = divider.new_horizontal(size="5%", pad=0.05)
-    cb1 = colorbar.ColorbarBase(ax_cb, cmap=color_map,
+    cb1 = colorbar.ColorbarBase(ax_cb, cmap=color_map, norm=color_norm,
                                 orientation='vertical', alpha=.4)
     cb1.ax.get_yaxis().labelpad = 16
     cb1.ax.set_ylabel(hue_label,

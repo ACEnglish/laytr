@@ -33,6 +33,8 @@ def map_main(args):
     Main
     """
     args = parse_args(args)
-    feats = joblib.load(args.input)
+    data = joblib.load(args.input)
     som = pickle.load(open(args.som, 'rb'))
-    joblib.dump(map_to_som(feats, som), args.output)
+    joblib.dump({"index": data["index"], 
+                 "map": map_to_som(data["features"], som)},
+                args.output)

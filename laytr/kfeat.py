@@ -4,7 +4,8 @@ Given regions and a reference, create a numpy 2D array of the kmer featurization
 import re
 import argparse
 import multiprocessing
-from typing import List
+from typing import Iterator, List, Tuple, Type
+
 from functools import partial
 
 import pysam
@@ -46,7 +47,7 @@ def kfeats(seqs: List[str], k: int = 3,
     """
     return np.array([kfeats(_, k, normalize) for _ in seqs])
 
-def get_features(region: tuple[str, int, int],
+def get_features(region: Tuple[str, int, int],
                  ref_fn: str, k: int = 3,
                  normalize: bool = True) -> ArrayLike:
     """
@@ -57,19 +58,26 @@ def get_features(region: tuple[str, int, int],
     seq = NUCFILT.sub("", ref.fetch(chrom, start, end))
     return kfeat(seq, k, normalize)
 
-def iter_regions(fn: str):
+class RegionIter:
     """
     Iterate a tab-delimited file with chrom, start, and end columns
+    while iterating, will collect and store positions in self.regions
     """
-    fh = truvari.opt_gz_open(fn)
-    for line in fh:
-        data = line.strip().split('\t')
-        chrom, start, end = data[:3]
-        start = int(start)
-        end = int(end)
-        yield chrom, start, end
+    def __init__(self, fn: str):
+        self.file_name = fn
+        self.fh = truvari.opt_gz_open(self.file_name)
+        self.regions : List[Tuple[str, int, int]] = []
 
-def regions_to_kmers(regions: List[tuple[str, int, int]], reference: str,
+    def __iter__(self) -> Iterator[Tuple[str, int, int]]:
+        for line in self.fh:
+            data = line.strip().split('\t')
+            chrom, start, end = data[:3]
+            start = int(start)
+            end = int(end)
+            self.regions.append((chrom, start, end))
+            yield self.regions[-1]
+
+def regions_to_kmers(regions: Type[RegionIter], reference: str,
                      k: int = 3, nproc: int = 1):
     """
     Get kmer featurization for a set of regions over a reference
@@ -106,6 +114,6 @@ def kfeat_main(args):
     Main
     """
     args = parse_args(args)
-    m_reg = iter_regions(args.regions)
+    m_reg = RegionIter(args.regions)
     data = regions_to_kmers(m_reg, args.reference, k=args.kmer, nproc=args.threads)
-    joblib.dump(data, args.output)
+    joblib.dump({'index': m_reg.regions, 'features':data}, args.output)

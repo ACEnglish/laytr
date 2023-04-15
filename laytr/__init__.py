@@ -13,7 +13,7 @@ from laytr.kfeat import (
     kfeat,
     kfeats,
     get_features,
-    iter_regions,
+    RegionIter,
     regions_to_kmers,
 )
 
