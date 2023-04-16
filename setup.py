@@ -10,11 +10,11 @@ def read(rel_path):
 
 def get_version(rel_path):
     for line in read(rel_path).splitlines():
-        if line.startswith('__version__'):
+        if line.startswith("__version__"):
             delim = '"' if '"' in line else "'"
             vers = line.split(delim)[1]
-            if vers.endswith('-dev'):
-                vers += '0+' + _get_repo_hash()
+            if vers.endswith("-dev"):
+                vers += "0+" + _get_repo_hash()
             return vers
     else:
         raise RuntimeError("Unable to find version string.")
@@ -37,7 +37,7 @@ def _get_repo_hash():
                             stdout=subprocess.PIPE)
         p.communicate()
         if p.returncode:
-            ver += '_uc'
+            ver += "_uc"
     except EnvironmentError:
         pass
 
@@ -45,19 +45,19 @@ def _get_repo_hash():
 
 
 setup(
-    name='laytr',
-    version=get_version('laytr/__init__.py'),
+    name="laytr",
+    version=get_version("laytr/__init__.py"),
     author="ACEnglish",
     author_email="acenglish@gmail.com",
     url="https://github.com/ACEnglish/laytr",
-    packages=['laytr'],
-    license='MIT',
+    packages=["laytr", "laytr/reports"],
+    license="MIT",
     description="Library for variant benchmarking stratification",
-    long_description=open('README.md', encoding='UTF-8').read(),
-    long_description_content_type='text/markdown',
+    long_description=open("README.md", encoding="UTF-8").read(),
+    long_description_content_type="text/markdown",
     entry_points={
-      'console_scripts': [
-         'laytr = laytr.__main__:main'
+      "console_scripts": [
+         "laytr = laytr.__main__:main"
       ]
     },
     install_requires=[

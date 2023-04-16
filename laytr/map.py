@@ -1,7 +1,6 @@
 """
 Given a SOM and a DataFrame of features, pick the winning neuron and saved result with joblib
 """
-import pickle
 import joblib
 import argparse
 
@@ -34,7 +33,7 @@ def map_main(args):
     """
     args = parse_args(args)
     data = joblib.load(args.input)
-    som = pickle.load(open(args.som, 'rb'))
+    som = joblib.load(args.som)
     joblib.dump({"index": data["index"], 
                  "map": map_to_som(data["features"], som)},
                 args.output)
