@@ -4,9 +4,8 @@ Given regions and a reference, create a numpy 2D array of the kmer featurization
 import re
 import argparse
 import multiprocessing
-from typing import Iterator, List, Tuple, Type
-
 from functools import partial
+from typing import Iterator, List, Tuple, Type
 
 import pysam
 import joblib
@@ -40,12 +39,12 @@ def kfeat(seq: str, k: int = 3,
         ret /= number_of_kmers
     return ret
 
-def kfeats(seqs: List[str], k: int = 3,
+def kfeat_seqs(seqs: List[str], k: int = 3,
            normalize: bool = True) -> ArrayLike:
     """
     Return the kmer featurization of sequences
     """
-    return np.array([kfeats(_, k, normalize) for _ in seqs])
+    return np.array([kfeat(_, k, normalize) for _ in seqs])
 
 def get_features(region: Tuple[str, int, int],
                  ref_fn: str, k: int = 3,

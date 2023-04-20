@@ -11,7 +11,7 @@ __version__ = '0.0.1'
 
 from laytr.kfeat import (
     kfeat,
-    kfeats,
+    kfeat_seqs,
     get_features,
     RegionIter,
     regions_to_kmers,

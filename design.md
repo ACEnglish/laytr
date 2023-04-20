@@ -30,3 +30,10 @@ This is api only.
 
 
 GIAB
+
+
+I need to make a tool for truv2ga4gh
+Will take the truvari output directory (with/without phab)
+And add the needed intermediates such that it can be fed into whatever ga4gh application
+links to hap.py and https://github.com/ga4gh/benchmarking-tools/tree/master/doc/ref-impl
+
