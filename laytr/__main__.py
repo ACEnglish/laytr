@@ -9,6 +9,7 @@ from importlib.metadata import version
 from laytr import __version__
 from laytr.kfeat import kfeat_main
 from laytr.map import map_main
+from laytr.truv2ga4gh import truv2ga4gh_main
 
 def flat_version(args):
     """Print the version"""
@@ -19,6 +20,7 @@ def flat_version(args):
 
 TOOLS = {"kfeat": kfeat_main,
          "map": map_main,
+         "tru2ga": truv2ga4gh_main,
 }
 
 USAGE = f"""\
@@ -27,6 +29,7 @@ laytr v{__version__} Library for variant benchmarking stratification
 Available commands:
     kfeat   Create kmer featuration of genomic regions
     map     Map kfeats to a SOM and report neurons
+    tru2ga  Consolidate truvari outputs and annotate with GA4GH intermediates
 """
 
 def main():
