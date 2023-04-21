@@ -50,7 +50,7 @@ setup(
     author="ACEnglish",
     author_email="acenglish@gmail.com",
     url="https://github.com/ACEnglish/laytr",
-    packages=["laytr", "laytr/reports"],
+    packages=["laytr"],
     license="MIT",
     description="Library for variant benchmarking stratification",
     long_description=open("README.md", encoding="UTF-8").read(),
