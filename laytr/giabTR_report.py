@@ -210,13 +210,13 @@ def make_perf_by_mxszbin(data):
     plt.figure()
     p1 = sb.lineplot(data=mxszbin_report[["ACC", "BA", "F1"]])
     plt.xticks(rotation=45, ha='right')
-    _ = p1.set(title="Performance by max allele_delta length", xlabel="entropy", ylabel="metric")
+    _ = p1.set(title="Performance by max allele_delta length", xlabel="Size Bin", ylabel="Metric")
     plt.tight_layout()
 
     plt.figure()
     p2 = sb.lineplot(data=mxszbin_report[["PPV", "TPR", "TNR"]])
     plt.xticks(rotation=45, ha='right')
-    _ = p2.set(title="Performance by max allele_delta length", xlabel="entropy", ylabel="metric")
+    _ = p2.set(title="Performance by max allele_delta length", xlabel="Size Bin", ylabel="Metric")
     plt.tight_layout()
     return mxszbin_report, p1, p2
 
