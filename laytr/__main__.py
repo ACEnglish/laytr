@@ -11,7 +11,7 @@ from laytr.kfeat import kfeat_main
 from laytr.map import map_main
 from laytr.truv2ga4gh import truv2ga4gh_main
 from laytr.giabSV06 import giabSV06_main
-
+from laytr.giabTR_report import giabTRreport_main
 
 def flat_version(args):
     """Print the version"""
@@ -24,6 +24,7 @@ TOOLS = {"kfeat": kfeat_main,
          "map": map_main,
          "tru2ga": truv2ga4gh_main,
          "giabSV06": giabSV06_main,
+         "giabTR": giabTRreport_main,
 }
 
 USAGE = f"""\
@@ -34,6 +35,7 @@ Available commands:
     map       Map kfeats to a SOM and report neurons
     tru2ga    Consolidate truvari outputs and annotate with GA4GH intermediates
     giabSV06  GIAB SV v0.6 report on a truvari directory
+    giabTR    GIAB TR report on a refine.regions.txt
 """
 
 def main():

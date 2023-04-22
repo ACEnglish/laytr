@@ -55,6 +55,7 @@ setup(
     description="Library for variant benchmarking stratification",
     long_description=open("README.md", encoding="UTF-8").read(),
     long_description_content_type="text/markdown",
+    package_data={'laytr': ['templates/*.html']},
     entry_points={
       "console_scripts": [
          "laytr = laytr.__main__:main"
@@ -68,5 +69,6 @@ setup(
         "plotly >= 5.13",
         "scipy >= 1.10",
         "statsmodels >= 0.13.5",
+        "Jinja2 >= 3.1",
     ],
 )
