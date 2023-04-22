@@ -10,6 +10,7 @@
         color: #333333;
       }
       h1, h2 {
+    	display: inline;
         margin-top: 40px;
         margin-bottom: 20px;
         text-align: center;
@@ -54,7 +55,8 @@
 
       /* Define styles for the download button */
       .download-button {
-        padding: 10px 20px;
+        float: right;
+        padding: 8px 20px;
         background-color: #4CAF50;
         color: white;
         border-radius: 4px;
@@ -62,7 +64,7 @@
         font-size: 16px;
         margin: 10px 0;
         display: block;
-        width: 200px;
+        width: 75px;
         margin: 0 auto;
       }
       .download-button:hover {
@@ -86,20 +88,129 @@
         max-width: 100%;
         height: auto;
       }
+
+      /* Style for the help icon */
+      .help-icon {
+        display: inline-block;
+	top: 5px;
+        width: 20px;
+        height: 20px;
+        background-color: #006699;
+        border-radius: 50%;
+        text-align: center;
+        font-size: 18px;
+        color: #ffffff;
+        cursor: pointer;
+        position: relative;
+      }
+      .help-icon:hover {
+        background-color: #0384fc;
+      }
+
+      /* Style for the modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+
+      /* Style for the modal content */
+      .modal-content {
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #ffffff;
+        box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        border-radius: 5px;
+        z-index: 1000;
+      }
+
+      /* Style for the close button */
+      .close-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 16px;
+        color: #cccccc;
+        cursor: pointer;
+      }
     </style>
+
+    <script>
+      function showModal(x) {
+        var modal = document.getElementById("modal_" + x);
+        modal.style.display = "block";
+        window.addEventListener("click", function(event) {
+          if (event.target == modal) {
+            hideModal(x);
+          }
+        });
+      }
+
+      function hideModal(x) {
+        var modal = document.getElementById("modal_" + x);
+        modal.style.display = "none";
+        window.removeEventListener("click", function(event) {
+          if (event.target == modal) {
+            hideModal(x);
+          }
+        });
+      }
+    </script>
   </head>
   <body>
     <h1>Benchmark subsets</h1>
-    {{ subset_report | safe }}
-    <div>
-      <a href="data:text/csv;charset=utf-8,{{ subset_csv | urlencode }}" download="data.csv" class="download-button">Download as CSV</a>
+    <div class="help-icon" onclick="showModal('subsets')">?</div>
+    <div class="modal" id="modal_subsets">
+      <div class="modal-content">
+	<div class="close-btn" onclick="hideModal('subsets')">X</div>
+	<p>Report on the overall performance of the tool as well as subsets of the benchmark. The subsets are:
+	<ul>
+		<li>Full : All GIABTR regions</li>
+		<li>Tier1 : Confident subset of regions</li>
+		<li>Tier2 : Regions which are less confident in the benchmark</li>
+		<li>AnyVar : Regions which had any variation observed across Adotto pVCF</li>
+		<li>>=5 : Regions with >=5bp variation observed across Adotto pVCF</li>
+	</ul>
+	</p>
+      </div>
     </div>
+    <div>
+      <a href="data:text/csv;charset=utf-8,{{ subset_csv | urlencode }}" download="subset.csv" class="download-button">Download</a>
+    </div>
+    {{ subset_report | safe }}
+    <hr>
 
     <h1>RECM report</h1>
-    {{ recm_report | safe }}
-    <div>
-      <a href="data:text/csv;charset=utf-8,{{ recm_csv | urlencode }}" download="data.csv" class="download-button">Download as CSV</a>
+    <div class="help-icon" onclick="showModal('recm')">?</div>
+    <div class="modal" id="modal_recm">
+      <div class="modal-content">
+	<div class="close-btn" onclick="hideModal('recm')">X</div>
+	<p>The GIABTR bed file holds information about the allele length deltas per-haplotype. These 
+	deltas are calculated as the sum of variant lengths in HG002 per-haplotype. For example, if 
+	the first haplotype has two 10bp deletions, the allele delta is -20bp.</p>
+	<p>We can use these deltas to annotate TR regions as being EXPansions or CONtractions of the
+	reference allele.</p>
+	<p>Some regions may also have REFerence length, where the delta is 0. Most of these are simply
+	invariant sites in HG002 or those that only contain SNPs but also includes 'balanced' variants.
+	For example, a haplotype with a 5bp DEL and 5bp INS has a 0bp allele delta and would be 
+	classified as "REF".</p>
+	<p>Because the GIABTR bed file has allele length deltas per-haplotype, it's possible that 
+	haplotype1 has an EXPansion while haplotype2 has a CONtractions. These are annotated as MIXed.</p>
+      </div>
     </div>
+    <div>
+      <a href="data:text/csv;charset=utf-8,{{ recm_csv | urlencode }}" download="recm.csv" class="download-button">Download</a>
+    </div>
+    {{ recm_report | safe }}
     <div class="plot-grid">
         <div class="plot">
           {{ recm_p1 | safe }}
@@ -108,10 +219,24 @@
           {{ recm_p2 | safe }}
         </div>
     </div>
+    <hr>
 
     <h1>Entropy</h1>
+    <div class="help-icon" onclick="showModal('entropy')">?</div>
+    <div class="modal" id="modal_entropy">
+      <div class="modal-content">
+	<div class="close-btn" onclick="hideModal('entropy')">X</div>
+	    <p>The GIABTR bed file holds information about the reference sequence entropy over regions. 
+	    As the entropy lowers, the sequence has less nucleotide diversity (e.g. an entropy of 0 would 
+	    be a pure homopolymer regions). We can use this entropy as a proxy for describing the 
+	    difficulty of resolving the region.</p>
+	    <p>To calculate the performance by max entropy, we iteratively subset the caller's region 
+	    performance for all regions with entropy &le; a range of entropy steps. For example, at max entropy of
+	    0.80, the performance if on all regions with less than 0.80 entropy</p>
+      </div>
+    </div>
     <div>
-      <a href="data:text/csv;charset=utf-8,{{ entropy_csv | urlencode }}" download="data.csv" class="download-button">Download as CSV</a>
+      <a href="data:text/csv;charset=utf-8,{{ entropy_csv | urlencode }}" download="entropy.csv" class="download-button">Download</a>
     </div>
     <div class="plot-grid">
         <div class="plot">
@@ -121,12 +246,24 @@
           {{ entropy_p2 | safe }}
         </div>
     </div>
+    <hr>
 
     <h1>Max SizeBin</h1>
-    {{ sizebin_report | safe }}
-    <div>
-      <a href="data:text/csv;charset=utf-8,{{ sizebin_csv | urlencode }}" download="data.csv" class="download-button">Download as CSV</a>
+    <div class="help-icon" onclick="showModal('sizebin')">?</div>
+    <div class="modal" id="modal_sizebin">
+      <div class="modal-content">
+	<div class="close-btn" onclick="hideModal('sizebin')">X</div>
+	    <p>As described above in the RECM section, we have allele deltas. One interesting view 
+	    of our data would be to separate by the size of the allele delta. We'll use size bins 
+	    and annotate each region's maximum allele delta into a categorical variable.</p>
+	    <p>Note that the 'SNP' size bin is allele_delta of 0, which may mean no variant in HG002,
+	    only SNPs, or balanced INS/DEL changes.</p>
+      </div>
     </div>
+    <div>
+      <a href="data:text/csv;charset=utf-8,{{ sizebin_csv | urlencode }}" download="sizebin.csv" class="download-button">Download</a>
+    </div>
+    {{ sizebin_report | safe }}
     <div class="plot-grid">
         <div class="plot">
           {{ sizebin_p1 | safe }}
@@ -135,37 +272,102 @@
           {{ sizebin_p2 | safe }}
         </div>
     </div>
+    <hr>
 
     <h1>Gene TRs</h1>
-    {{ genetr_report | safe }}
-    <div>
-      <a href="data:text/csv;charset=utf-8,{{ gene_csv | urlencode }}" download="data.csv" class="download-button">Download as CSV</a>
+    <div class="help-icon" onclick="showModal('gene')">?</div>
+    <div class="modal" id="modal_gene">
+      <div class="modal-content">
+	<div class="close-btn" onclick="hideModal('gene')">X</div>
+	    <p>The Adotto TR catalog hold information about genes from Enseml v105 that each TR intersects.
+	    The Gene TRs report is a summary of that information</p>
+      </div>
     </div>
+    <div>
+      <a href="data:text/csv;charset=utf-8,{{ gene_csv | urlencode }}" download="gene.csv" class="download-button">Download</a>
+    </div>
+    {{ genetr_report | safe }}
+    <hr>
 
     <h1>Interspersed Repeats</h1>
-    {{ inter_report | safe }}
-    <div>
-      <a href="data:text/csv;charset=utf-8,{{ inter_csv | urlencode }}" download="data.csv" class="download-button">Download as CSV</a>
+    <div class="help-icon" onclick="showModal('inter')">?</div>
+    <div class="modal" id="modal_inter">
+      <div class="modal-content">
+	<div class="close-btn" onclick="hideModal('inter')">X</div>
+	    <p>Some of the tandem repeats can be annotated as having interspersed repeats (e.g. ALUs)
+	    in the reference sequence. This is most often because a tandemly duplicated ALU in the 
+	    reference can be picked up on by TandemRepeatFinder as being a tandem repeat. While this 
+	    is technically a tandem repeat, one may not be interested in these kinds of events. Therefore,
+	    this report stratifies by interspersed repeats annotations</p>
+      </div>
     </div>
+    <div>
+      <a href="data:text/csv;charset=utf-8,{{ inter_csv | urlencode }}" download="inter.csv" class="download-button">Download</a>
+    </div>
+    {{ inter_report | safe }}
+    <hr>
 
     <h1>Repeat Complexity</h1>
-    {{ cpx_report | safe }}
-    <div>
-      <a href="data:text/csv;charset=utf-8,{{ repeat_csv | urlencode }}" download="data.csv" class="download-button">Download as CSV</a>
+    <div class="help-icon" onclick="showModal('cpx')">?</div>
+    <div class="modal" id="modal_cpx">
+      <div class="modal-content">
+	<div class="close-btn" onclick="hideModal('cpx')">X</div>
+	    <p>There are three columns inside the TR catalog that approximately describe the complexity:</p>
+	    <ul>
+		    <li>ovl_flag : a bit flag describing how TRF annotations overlap</li>
+		    <li>n_annos : the number of TRF annotatios in the regions</li>
+		    <li>n_subregions : the number of distinct non-overlapping subsets of annotations are in the regions</li>
+	    </ul>
+	    <p>The repeat complexity stratifications are a basic separation of 'simple' vs 'complex' repeats.</p>
+	    <ul>
+		    <li>Simple : Regions with a single isolated annotation are typically the easiest</li>
+		    <li>Parent/Nested : Regions with a single parent/nested annotations are next</li>
+		    <li>Complex : Regions which aren't single Simple or single Parent/Nested</li>
+		    <li>Multi Anno : Regions with multiple TRF annotations</li>
+		    <li>Multi Sub-Reg : Regins with multiple, non-overlapping annotations</li>
+	    </ul>
+      </div>
     </div>
+    <div>
+      <a href="data:text/csv;charset=utf-8,{{ repeat_csv | urlencode }}" download="cpx.csv" class="download-button">Download</a>
+    </div>
+    {{ cpx_report | safe }}
+    <hr>
 
     <h1>Motif Length</h1>
-    {{ motif_report | safe }}
-    <div>
-      <a href="data:text/csv;charset=utf-8,{{ motif_csv | urlencode }}" download="data.csv" class="download-button">Download as CSV</a>
+    <div class="help-icon" onclick="showModal('motif')">?</div>
+    <div class="modal" id="modal_motif">
+      <div class="modal-content">
+	<div class="close-btn" onclick="hideModal('motif')">X</div>
+	    <p>The TR catalog has a column 'annos' with json of TandemRepeatFinder hits over the 
+	    region. Here we calculate the maximum motif length of each region and use that 
+	    as a way to stratify the caller's performance.</p>
+	    <p>Note, this is a characteriztion of the reference sequence and may not be indicative of the
+	    variant</p>
+      </div>
     </div>
+    <div>
+      <a href="data:text/csv;charset=utf-8,{{ motif_csv | urlencode }}" download="motif.csv" class="download-button">Download</a>
+    </div>
+    {{ motif_report | safe }}
     <div class="plot-grid">
         <div class="plot">
           {{ motif_p1 | safe }}
         </div>
     </div>
+    <hr>
 	
     <h1>SOMs</h1>
+    <div class="help-icon" onclick="showModal('motif')">?</div>
+    <div class="modal" id="modal_motif">
+      <div class="modal-content">
+	<div class="close-btn" onclick="hideModal('motif')">X</div>
+	    <p>Part of the laytr package is Self Organizing Maps (SOMs), including a SOM made on 
+	    the kmer-featurization of the sequence spanned by tandem repeats. An interesting 
+	    analysis of the region performance would be to see if there's differences in e.g. the 
+	    balanced accuracy of the tool depending on the sequence context.</p>
+      </div>
+    </div>
     <div class="plot-grid">
         <div class="plot">
           {{ som_1 | safe }}
@@ -190,5 +392,6 @@
           {{ som_6 | safe }}
         </div>
     </div>
-  </body>
+    <hr>
+    </body>
 </html>
