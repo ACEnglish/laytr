@@ -53,12 +53,12 @@ laytr tru2ga -i truvari_results/ --with-refine -o result_
 ```
 
 ## giabTR
-Creates an html report truvari's `refine.regions.txt` on the GIAB TR benchmark.
+Creates an html report from truvari's `refine.regions.txt` on the GIAB TR benchmark.
 
 ```bash
 # Make a truvari result
 truvari bench -b giab_tr.vcf.gz -c tr_caller.vcf.gz --includebed giab_tr.bed -o bench/
-truvari refine bench/
+truvari refine --reference grch38.fa bench/
 laytr giabTR -r bench/refine.regions.txt \
 	     -b giab_tr.bed \
 	     -t adotto_tr_catalog.bed \
@@ -66,7 +66,9 @@ laytr giabTR -r bench/refine.regions.txt \
 	     -m adotto_TRv1.1_3mers.map # available from laytr repo \
 	     -o giabTR_report.html
 ```
-See `examples/giabTR_report.html` for a look at the report.
+See `examples/giabTR_report.html`
+([rendered](https://htmlpreview.github.io/?https://github.com/ACEnglish/laytr/blob/develop/examples/giabTR_report.html))
+for a look at the report.
 
 ## giabSV06
 
