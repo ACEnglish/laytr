@@ -14,7 +14,9 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 NUCS = {'A':0, 'G':1, 'C':2, 'T':3}
+RNUC = {v:k for k,v in NUCS.items()}
 NUCFILT = re.compile("[^ATCG]")
+REVCOMP = str.maketrans("ATCG", "TAGC")
 
 def kmer_index(kmer: str) -> int:
     """
@@ -25,6 +27,16 @@ def kmer_index(kmer: str) -> int:
         index += NUCS[nuc] << pos * 2
     return index
 
+def index_to_kmer(idx: int, klen: int) -> str:
+    """
+    Get the kmer that maps to an index
+    """
+    seq = ""
+    for pos in range(len(kmer)):
+        seq += RNUC[int(bin(m_idx & 0b11), 2)]
+        m_idx = m_idx >> 2
+    return seq
+
 def kfeat(seq: str, k: int = 3,
           normalize: bool = True) -> ArrayLike:
     """
@@ -32,11 +44,14 @@ def kfeat(seq: str, k: int = 3,
     """
     ret = np.zeros(4 ** k)
     number_of_kmers = len(seq) - k + 1
+    # Double stranded
+    rc_seq = seq.translate(REVCOMP)[::-1]
     for i in range(number_of_kmers):
         ret[kmer_index(seq[i:i+k])] += 1
+        ret[kmer_index(rc_seq[i:i+k])] += 1
 
     if normalize:
-        ret /= number_of_kmers
+        ret /= number_of_kmers * 2
     return ret
 
 def kfeat_seqs(seqs: List[str], k: int = 3,
@@ -56,6 +71,17 @@ def get_features(region: Tuple[str, int, int],
     ref = pysam.FastaFile(ref_fn)
     seq = NUCFILT.sub("", ref.fetch(chrom, start, end))
     return kfeat(seq, k, normalize)
+
+def get_features_GC(region: Tuple[str, int, int],
+                 ref_fn: str, k: int = 3,
+                 normalize: bool = True) -> ArrayLike:
+    """
+    Return the kmer features for a single region
+    """
+    chrom, start, end = region
+    ref = pysam.FastaFile(ref_fn)
+    seq = NUCFILT.sub("", ref.fetch(chrom, start, end)).upper()
+    return [(seq.count('G') + seq.count('C')) / len(seq)]
 
 class RegionIter:
     """

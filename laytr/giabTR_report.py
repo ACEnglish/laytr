@@ -328,8 +328,11 @@ def load_data(reg_fn, bed_fn, trc_fn, som_fn):
     regions = pd.read_csv(reg_fn, sep='\t')
     bed = pd.read_csv(bed_fn, sep='\t', names=["chrom", "start", "end", "tier", "replicates", "var_flag",
                                                "entropy", "ad1", "ad2"])   
-    catalog = (pd.read_csv(trc_fn, sep='\t')
-               .rename(columns={'chr':"chrom"})
+
+    reg_header = ("chrom start end ovl_flag up_buff dn_buff hom_pct n_filtered "
+                  "n_annos n_subregions mu_purity pct_annotated interspersed "
+                  "patho codis gene_flag biotype annos").split(' ')
+    catalog = (pd.read_csv(trc_fn, sep='\t', header=None, names=reg_header)
                .set_index(["chrom", "start", "end"]))
 
     bed.set_index(["chrom", "start", "end"], inplace=True)
@@ -354,6 +357,7 @@ def giabTRreport_main(args):
     """
     Args 
     """
+    sb.set() # style the graphs
     args = parse_args(args)
     truvari.setup_logging()
     logging.info("Loading data")
