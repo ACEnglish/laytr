@@ -328,12 +328,36 @@
         </div>
     </div>
     <hr>
-	
-    <h1>SOMs</h1>
-    <div class="help-icon" onclick="showModal('motif')">?</div>
+
+	<h1>Homopolymers</h1>
+    <div class="help-icon" onclick="showModal('hompct')">?</div>
     <div class="modal" id="modal_motif">
       <div class="modal-content">
-	<div class="close-btn" onclick="hideModal('motif')">X</div>
+	<div class="close-btn" onclick="hideModal('hompct')">X</div>
+	    <p>Recorded in the Adotto TR catalog is what percent of a region's sequence is annotatable as homopolymers
+        (HomPct). Regions with a higher HomPct are more likely to have false positives/negatives, particularly from
+        pipelines with sequencing bias. Here we stratify regions based on a maximum HomPct.</p>
+      </div>
+    </div>
+    <div>
+      <a href="data:text/csv;charset=utf-8,{{ hompct_csv | urlencode }}" download="hompct.csv" class="download-button">Download</a>
+    </div>
+    {{ hompct_report | safe }}
+    <div class="plot-grid">
+        <div class="plot">
+          {{ hompct_p1 | safe }}
+        </div>
+	<div class="plot">
+          {{ hompct_p2 | safe }}
+        </div>
+    </div>
+    <hr>
+
+    <h1>SOMs</h1>
+    <div class="help-icon" onclick="showModal('soms')">?</div>
+    <div class="modal" id="modal_soms">
+      <div class="modal-content">
+	<div class="close-btn" onclick="hideModal('soms')">X</div>
 	    <p>Part of the laytr package is Self Organizing Maps (SOMs), including a SOM made on 
 	    the kmer-featurization of the sequence spanned by tandem repeats. An interesting 
 	    analysis of the region performance would be to see if there's differences in performance 
@@ -422,8 +446,5 @@
     </div>
     <p>*Stratification by sizes requires a present variant. Therefore metrics which use TN (e.g. TNR, NPV, ACC) aren't informative. </p>
     <hr>
-
-
-
     </body>
 </html>

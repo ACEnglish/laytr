@@ -172,7 +172,7 @@ def make_recm_report(data):
 def make_perf_by_max_entropy(data):
     ba_by_ent_min = []
     ba_by_ent = []
-    for i in range(0, 100, 2):
+    for i in range(0, 101, 2):
         i /= 100
         sub = region_stats(data[data['entropy'] <= i])
         ba_by_ent_min.append(i)
@@ -279,6 +279,26 @@ def make_max_motif_report(data):
     plt.tight_layout()
     return motif_report, p
 
+def make_hompct_report(data):
+    ba_by_hompct_min = []
+    ba_by_hompct = []
+    for i in range(0, 101, 5):
+        sub = region_stats(data[data['hompct'] <= i])
+        ba_by_hompct_min.append(i)
+        ba_by_hompct.append(sub)
+    max_hompct = pd.DataFrame(ba_by_hompct, index=pd.Index(ba_by_hompct_min, name="Max HomPct"))
+
+    plt.figure()
+    p1 = sb.lineplot(data=max_hompct[["ACC", "BA", "F1"]].dropna())
+    _ = p1.set(title="Performance by region hompct", ylabel="Metric")
+    plt.tight_layout()
+
+    plt.figure()
+    p2 = sb.lineplot(data=max_hompct[["PPV", "TPR", "TNR"]].dropna())
+    _ = p2.set(title="Performance by region hompct", ylabel="Metric")
+    plt.tight_layout()
+    return max_hompct, p1, p2
+
 def make_som_report(data, som):
     index = []
     rows = []
@@ -329,7 +349,7 @@ def load_data(reg_fn, bed_fn, trc_fn, som_fn):
     bed = pd.read_csv(bed_fn, sep='\t', names=["chrom", "start", "end", "tier", "replicates", "var_flag",
                                                "entropy", "ad1", "ad2"])   
 
-    reg_header = ("chrom start end ovl_flag up_buff dn_buff hom_pct n_filtered "
+    reg_header = ("chrom start end ovl_flag up_buff dn_buff hompct n_filtered "
                   "n_annos n_subregions mu_purity pct_annotated interspersed "
                   "patho codis gene_flag biotype annos").split(' ')
     catalog = (pd.read_csv(trc_fn, sep='\t', header=None, names=reg_header)
@@ -387,6 +407,9 @@ def giabTRreport_main(args):
     logging.info("Motif report")
     motif_report, motif_p1 = make_max_motif_report(data)
     
+    logging.info("HomPct report")
+    hompct_report, hompct_p1, hompct_p2 = make_hompct_report(data)
+
     logging.info("SOMs")
     som_1, som_2, som_3, som_4, som_5, som_6 = make_som_report(data, joblib.load(args.som))
 
@@ -417,6 +440,9 @@ def giabTRreport_main(args):
                                   motif_report=motif_report.to_html(),
                                   motif_csv=motif_report.to_csv(),
                                   motif_p1=inline_plot(motif_p1),
+                                  hompct_csv=hompct_report.to_csv(),
+                                  hompct_p1=inline_plot(hompct_p1),
+                                  hompct_p2=inline_plot(hompct_p2),
                                   som_1=inline_plot(som_1),
                                   som_2=inline_plot(som_2),
                                   som_3=inline_plot(som_3),
