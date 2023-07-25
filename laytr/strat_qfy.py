@@ -1,18 +1,22 @@
-import pandas as pd
+import logging
+
 import pysam
 import truvari
+import pandas as pd
 
-# Method #1: Loose Regional Comparison
 def calculate_metrics_method1(var_states):
+    """
+    Loose Regional Comparison
+    """
     TP = var_states['tp']
     FP = var_states['fp']
     FN = var_states['fn']
-#    TN = var_states['tn']
+    # TN = var_states['tn']
     # NC = var_states['nc']
     # NCV = var_states['ncv']
     P = TP + FN
     N = TP + FP + FN
- #   N = TN + FP
+    # N = TN + FP
 
     metrics = {
         'sensitivity': TP / (TP + FN) if (TP + FN) != 0 else 0,
@@ -24,8 +28,10 @@ def calculate_metrics_method1(var_states):
 
     return metrics
 
-# Method #2: Allele Match Required
 def calculate_metrics_method2(var_states):
+    """
+    Allele Match Required
+    """
     TP = var_states['tp']
     FP = var_states['fp']
     FN = var_states['fn']
@@ -45,8 +51,10 @@ def calculate_metrics_method2(var_states):
 
     return metrics
 
-# Method #3: Genotype Match Required
 def calculate_metrics_method3(var_states):
+    """
+    Genotype Match Required as well as Genotype Match and Local Phasing Required
+    """
     TP = var_states['tp']
     FP = var_states['fp']
     FN = var_states['fn']
@@ -66,21 +74,24 @@ def calculate_metrics_method3(var_states):
 
     return metrics
 
-# Method #4: Genotype Match and Local Phasing Required
-# Same as method #3
-calculate_metrics_method4 = calculate_metrics_method3
-
-
+# TODO: Why are there multiple methods calculating very similar things?
+# TODO: Try to figure out a way to "don't repeat yourself" (DRY principle)
 metrics_functions = {
     'method1': calculate_metrics_method1,
     'method2': calculate_metrics_method2,
     'method3': calculate_metrics_method3,
-    'method4': calculate_metrics_method4,
 }
 
 def get_vcf_entry_state(entry):
-    bd = entry.samples.values()[0]["BD"]
-    bk = entry.samples.values()[0]["BK"]
+    """
+    Returns BD and BK format fields from the first sample of a vcf entry
+
+    # TODO: by default, its fine to parse the first sample. Would parsing multi-sample ever be needed?
+    # If so, this method should take a second parameter 'sample_name' which is available to the user via
+    # the cli (which would be handled in `parse_args`)
+    """
+    bd = entry.samples[0]["BD"]
+    bk = entry.samples[0]["BK"]
     if bd == 'TP':
         if bk == 'gm':
             return 'tp'
@@ -94,7 +105,13 @@ def get_vcf_entry_state(entry):
         return None
 
 def calculate_var_states(region, truth_vcf, query_vcf):
-    print(f"Calculating var states for region: {region} ")
+    """
+    For variant entries within a region, sum the variant states
+    returns a dictionary of {state: count}
+    """
+    # TODO: this would have been `print`ed potentially millions of times
+    # Put it in debug (if at all). I think it shouldn't be used
+    # logging.debug(f"Calculating var states for region: {region} ")
     chrom, start, end = region
     var_states = {"tpbase": 0, "tp": 0, "fn": 0, "fp": 0}
     for truth_entry in truth_vcf.fetch(chrom, int(start), int(end)):
@@ -104,20 +121,39 @@ def calculate_var_states(region, truth_vcf, query_vcf):
     return var_states
 
 def calculate_metrics(var_states, metrics_func='truvari'):
+    """
+    Run a metrics calculation method
+    """
     if metrics_func == 'truvari':
         return truvari.performance_metrics(**var_states)
     else:
         return metrics_functions[metrics_func](var_states)
 
-if __name__ == '__main__':
+def parse_args(args):
+    """
+    Given a list of command line arguments, parse them
+    
+    # TODO: This should use argparse and look like laytr.giabTR_report.parse_args
+    """
     truth_vcf = "GRCh38_v4.2.1_HG2-verrkoV1.1-V0.7_dipcall-z2k_TRUTH.vcf.gz"  # replace with the path to the truth VCF file
     query_vcf = "GRCh38_v4.2.1_HG2-verrkoV1.1-V0.7_dipcall-z2k_QUERY.vcf.gz"  # replace with the path to the query VCF file
-    # truth_vcf = "ga4gh_truth.vcf.gz"  # replace with the path to the truth VCF file
-    # query_vcf = "ga4gh_query.vcf.gz"  # replace with the path to the query VCF file
+    # TODO: where does this file exist?
+    # probably need to compress it and add it to the repository
     input_bed = "v3.1-GRCh38-subset-multiintersect.bed"  # replace with the path to the input TSV file
 
     # Let user choose metrics function, default is 'truvari'
+    # TODO: interactive prompts get in the way of pipelining. Turn this into a parameter that has the `choices`
     metrics_func = input('Enter metrics function (truvari/method1/method2/method3/method4): ') or 'truvari'
+
+    # Logging
+    truvari.setup_logging()
+    return truth_vcf, query_vcf, input_bed, metrics_func
+
+def strat_qfy_main(args):
+    """
+    Main
+    """
+    truth_vcf, query_vcf, input_bed, metrics_func = parse_args(args)
 
     df = pd.read_csv(input_bed, sep='\t')
 
@@ -143,4 +179,5 @@ if __name__ == '__main__':
             out[column] = calculate_metrics(out[column], metrics_func)
 
     result = pd.DataFrame(out)
+    # TODO: output file should be an argument with a default of output.csv
     result.to_csv(f"output_{metrics_func}.csv", index=False)
