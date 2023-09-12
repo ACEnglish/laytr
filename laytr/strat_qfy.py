@@ -120,11 +120,12 @@ def strat_qfy_main(args):
                 else:
                     out[column] = region_var_states[i]
         if column in out:
-            out[column] = truvari.performance_metrics(**out[column])
+            out[column] = tuple(out[column].values()) + truvari.performance_metrics(**out[column])
 
     result = pd.DataFrame(out)
-
-    result.to_csv(args.output, index=False)
+    ## TODO - modify so values are not hard coded
+    result.index = ["tpbase", "tp", "fn", "fp","precision","recall","f1"]
+    result.to_csv(args.output, index=True)
 
 
 if __name__ == "__main__":
