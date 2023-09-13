@@ -2,10 +2,10 @@ import os
 import subprocess
 
 # Path to the TSV file
-tsv_file = "v3.1-GRCh38-subset.tsv"
+tsv_file = "GRCh38-stratifications-subset.tsv"
 
 # Output BED file
-output_bed_file = "v3.1-GRCh38-subset-multiintersect.bed"
+output_bed_file = "v3.3-GRCh38-subset-multiintersect.bed"
 
 # Create a temporary directory to store intermediate BED files
 temp_dir = "temp"
@@ -22,7 +22,7 @@ with open(tsv_file, "r") as f:
 bed_files = []
 for strat_id, path in stratifications:
     temp_bed_file = os.path.join(temp_dir, f"{strat_id}.bed")
-    subprocess.run(["gunzip", "-c", path], stdout=open(temp_bed_file, "w"), check=True)
+    subprocess.run(["gunzip", "-c", f"GRCh38@all/{path}"], stdout=open(temp_bed_file, "w"), check=True)
     bed_files.append(temp_bed_file)
 
 # Run bedtools multiintersect

@@ -1,0 +1,5 @@
+refseq_cds	Functional/GRCh38_refseq_cds.bed.gz
+alldifficultregions	Union/GRCh38_alldifficultregions.bed.gz
+alllowmapandsegdupregions	Union/GRCh38_alllowmapandsegdupregions.bed.gz
+notinalldifficultregions	Union/GRCh38_notinalldifficultregions.bed.gz
+notinalllowmapandsegdupregions	Union/GRCh38_notinalllowmapandsegdupregions.bed.gz

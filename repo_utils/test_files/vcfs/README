@@ -1,0 +1,8 @@
+VCFs from defrabb v0.7 T2T GIAB HG002 v4.2.1 small variant benchmark comparisons
+VCFs subset using  
+```
+bcftools view -r chr20 -Oz GRCh38_v4.2.1_HG2-verrkoV1.1-V0.7_dipcall-z2k_TRUTH.vcf.gz \
+    > GRCh38_v4.2.1_HG2-verrkoV1.1-V0.7_dipcall-z2k_TRUTH_chr20.vcf.gz`
+```
+
+vcf indexed using `bcftools index`
