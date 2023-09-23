@@ -10,7 +10,8 @@ from matplotlib.patches import RegularPolygon, Ellipse
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-def make_hex_plot(som, hue=None, hue_label="Distance", color_map=cm.Blues, hue_count_ticks=False, color_norm=None):
+def make_hex_plot(som, hue=None, hue_label="Distance", color_map=cm.Blues, hue_count_ticks=False, color_norm=None,
+                  alpha=0.4):
     """
     Creates the hex plot for a som. Hue is a matrix of the same shape as the SOM.
     By default, hue will be a som.distance_map()
@@ -35,7 +36,7 @@ def make_hex_plot(som, hue=None, hue_label="Distance", color_map=cm.Blues, hue_c
                                  numVertices=6,
                                  radius=.95 / np.sqrt(3),
                                  facecolor=color_map(m_hue_val),
-                                 alpha=.4,
+                                 alpha=alpha,
                                  edgecolor='gray')
             ax.add_patch(hex)
     xrange = np.arange(hue.shape[0])
@@ -51,7 +52,7 @@ def make_hex_plot(som, hue=None, hue_label="Distance", color_map=cm.Blues, hue_c
     divider = make_axes_locatable(plt.gca())
     ax_cb = divider.new_horizontal(size="5%", pad=0.05)
     cb1 = colorbar.ColorbarBase(ax_cb, cmap=color_map, norm=color_norm,
-                                orientation='vertical', alpha=.4)
+                                orientation='vertical', alpha=alpha)
     cb1.ax.get_yaxis().labelpad = 16
     cb1.ax.set_ylabel(hue_label,
                       rotation=270, fontsize=16)
