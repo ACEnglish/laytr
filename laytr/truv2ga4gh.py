@@ -66,7 +66,7 @@ def build_tree(regions):
     """
     tree = defaultdict(IntervalTree)
     for _, i in regions.iterrows():
-        tree[i['chrom']].addi(i['start'], i['end'])
+        tree[i['chrom']].addi(i['start'], i['end'] + 1)
     return tree
         
 def get_truvari_filenames(in_dir):
@@ -76,14 +76,14 @@ def get_truvari_filenames(in_dir):
             'fp': os.path.join(in_dir, 'fp.vcf.gz'),
             'params': os.path.join(in_dir, 'params.json')}
 
-def pull_entries(in_vcf_fn, tree=None):
+def pull_entries(in_vcf_fn, keep_tree=None, is_refined=False):
     """
     pull variants inside regions (or all if None)
     """
     in_vcf = pysam.VariantFile(in_vcf_fn)
-    for entry in in_vcf:
-        if tree is None or in_tree(tree, entry):
-            yield entry
+    m_iter = in_vcf if keep_tree is None else truvari.region_filter(in_vcf, keep_tree, is_refined)
+    for entry in m_iter:
+        yield entry
 
 def move_record(entry, out_vcf, sample):
     """
@@ -108,7 +108,7 @@ def parse_bench_dir(in_dir, t_vcf, q_vcf, tree=None, is_refined=False):
     ops_to_do = [("tp-base", "TP", t_vcf, bsamp), ("fn", "FN", t_vcf, bsamp),
                  ("tp-comp", "TP", q_vcf, csamp), ("fp", "FP", q_vcf, csamp)]
     for filename, bdkey, out_vcf, samp in ops_to_do:
-        for entry in pull_entries(in_vcfs[filename], tree):
+        for entry in pull_entries(in_vcfs[filename], tree, is_refined):
             n_entry = move_record(entry, out_vcf, samp)
             n_entry.info["IsRefined"] = is_refined
             n_entry.samples[0]["BD"] = bdkey
@@ -189,16 +189,16 @@ def truv2ga4gh_main(args):
     c_header = edit_header(pysam.VariantFile(bench_vcfs['tp-comp'], 'r').header.copy())
     q_vcf_fn = args.output + '_query.vcf'
     q_vcf = pysam.VariantFile(q_vcf_fn, 'w', header=c_header)
-    
-    bench_tree = None
+
+    regions = None
+    refine_tree = None
     if args.with_refine:
         regions = pd.read_csv(os.path.join(args.input, "refine.regions.txt"), sep='\t')
         refine_tree = build_tree(regions[regions['refined']])
-        bench_tree = build_tree(regions[~regions['refined']])
+        parse_bench_dir(os.path.join(args.input, 'phab_bench'), t_vcf, q_vcf,
+                        tree=refine_tree, is_refined=True)
         
-        parse_bench_dir(os.path.join(args.input, 'phab_bench'), t_vcf, q_vcf, refine_tree, True)
-    
-    parse_bench_dir(args.input, t_vcf, q_vcf, bench_tree)
+    parse_bench_dir(args.input, t_vcf, q_vcf, tree=refine_tree, is_refined=False)
     t_vcf.close()
     q_vcf.close()
     truvari.compress_index_vcf(t_vcf_fn)
