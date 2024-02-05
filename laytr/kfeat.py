@@ -24,7 +24,8 @@ def kmer_index(kmer: str) -> int:
     """
     index = 0
     for pos, nuc in enumerate(kmer):
-        index += NUCS[nuc] << pos * 2
+        if nuc in NUCS:
+            index += NUCS[nuc] << pos * 2
     return index
 
 def index_to_kmer(idx: int, klen: int) -> str:
