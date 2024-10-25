@@ -64,7 +64,7 @@ setup(
     install_requires=[
         "truvari >= 4.0",
         "matplotlib >= 3.7",
-        "minisom >= 2.3",
+        "minisom == 2.3.1",
         "seaborn >= 0.12",
         "plotly >= 5.13",
         "scipy >= 1.10",
